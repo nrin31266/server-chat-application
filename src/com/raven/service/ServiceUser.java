@@ -1,6 +1,7 @@
 package com.raven.service;
 
 import com.raven.connection.DatabaseConnection;
+import com.raven.model.Model_Login;
 import com.raven.model.Model_Message;
 import com.raven.model.Model_Register;
 import com.raven.model.Model_User_Account;
@@ -8,6 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServiceUser {
 
@@ -69,8 +73,38 @@ public class ServiceUser {
         }
         return message;
     }
-
+    public List<Model_User_Account> getUser(int exitUser) throws SQLException{
+        List<Model_User_Account> list = new ArrayList<>();
+        PreparedStatement p=con.prepareStatement(SELECT_USER_ACCOUNT);
+        p.setInt(1, exitUser);
+        ResultSet r=p.executeQuery();
+        while(r.next()){
+            int userID= r.getInt(1);
+            String userName= r.getString(2);
+            String gender= r.getString(3);
+            String image= r.getString(4);
+            list.add(new Model_User_Account(userID, userName, gender, image, true));
+        }
+        return list;
+    }
+    public Model_User_Account login(Model_Login login) throws SQLException{
+        Model_User_Account data= null;
+        PreparedStatement p= con.prepareStatement(LOGIN);
+        p.setString(1, login.getUserName());
+        p.setString(2, login.getPassword());
+        ResultSet r= p.executeQuery();
+        while(r.first()){
+            int userID= r.getInt(1);
+            String userName= r.getString(2);
+            String gender= r.getString(3);
+            String image= r.getString(4);
+            data= new Model_User_Account(userID, userName, gender, image, true);
+        }
+        return data;
+    }
     //  SQL
+    private final String LOGIN = "select UserID, user_account.UserName, Gender, ImageString from `user` join user_account using (UserID) where `user`.UserName=BINARY(?) and `user`.`Password`=BINARY(?) and user_account.`Status`='1'";
+    private final String SELECT_USER_ACCOUNT = "select UserID, UserName, Gender, ImageString from user_account where user_account.`Status`='1' and UserID<>?";
     private final String INSERT_USER = "insert into user (UserName, `Password`) values (?,?)";
     private final String CHECK_USER = "select UserID from user where UserName =? limit 1";
     private final String INSERT_USER_ACCOUNT="insert into user_account (UserID, UserName) value (?, ?)";
