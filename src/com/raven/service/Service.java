@@ -42,8 +42,10 @@ public class Service {
             @Override
             public void onData(SocketIOClient sioc, Model_Register t, AckRequest ar) throws Exception {
                 Model_Message message = new ServiceUser().register(t);
-                ar.sendAckData(message.isAction(), message.getMessage());
-                textArea.append("User has Register :" + t.getUserName() + " Pass :" + t.getPassword() + "\n");
+                ar.sendAckData(message.isAction(), message.getMessage(), message.getData());
+                if(message.isAction()){
+                    textArea.append("User has Register :" + t.getUserName() + " Pass :" + t.getPassword() + "\n");
+                }
             }
         });
         server.start();
