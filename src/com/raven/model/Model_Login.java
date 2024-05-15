@@ -28,6 +28,11 @@ public class Model_Login {
         this.userName = userName;
         this.password = password;
     }
+
+    @Override
+    public String toString() {
+        return "Model_Login{" + "userName=" + userName + ", password=" + password + '}';
+    }
     
     
 }

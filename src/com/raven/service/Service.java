@@ -10,7 +10,10 @@ import com.raven.model.Model_Login;
 import com.raven.model.Model_Message;
 import com.raven.model.Model_Register;
 import com.raven.model.Model_User_Account;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTextArea;
 
 public class Service {
@@ -30,7 +33,7 @@ public class Service {
 
     private Service(JTextArea textArea) {
         this.textArea = textArea;
-        serviceUser= new ServiceUser();
+        serviceUser = new ServiceUser();
     }
 
     public void startServer() {
@@ -48,34 +51,43 @@ public class Service {
             public void onData(SocketIOClient sioc, Model_Register t, AckRequest ar) throws Exception {
                 Model_Message message = serviceUser.register(t);
                 ar.sendAckData(message.isAction(), message.getMessage(), message.getData());
-                if(message.isAction()){
+                if (message.isAction()) {
                     textArea.append("User has Register :" + t.getUserName() + " Pass :" + t.getPassword() + "\n");
                     server.getBroadcastOperations().sendEvent("list_user", (Model_User_Account) message.getData());
                 }
             }
         });
-        server.addEventListener("list_user", Integer.class, new DataListener<Integer>(){
+        server.addEventListener("list_user", Integer.class, new DataListener<Integer>() {
             @Override
             public void onData(SocketIOClient sioc, Integer userID, AckRequest ar) throws Exception {
                 try {
-                    List<Model_User_Account> list= serviceUser.getUser(userID);
+                    List<Model_User_Account> list = serviceUser.getUser(userID);
                     sioc.sendEvent("list_user", list.toArray());
                 } catch (Exception e) {
                     System.err.println(e);
-                }               
-            }
-        });
-        server.addEventListener("login", Model_Login.class, new DataListener<Model_Login>() {
-            @Override
-            public void onData(SocketIOClient sioc, Model_Login t, AckRequest ar) throws Exception {
-                Model_User_Account login = serviceUser.login(t);
-                if(login!=null){
-                    ar.sendAckData(true, login);   
-                }else {
-                    ar.sendAckData(false);
                 }
             }
         });
+        server.addEventListener("dangNhap", Model_Login.class, new DataListener<Model_Login>() {
+            @Override
+            public void onData(SocketIOClient sioc, Model_Login t, AckRequest ar){
+                try {
+                    // Gọi phương thức login của serviceUser để xác thực người dùng
+                    Model_User_Account login = serviceUser.login(t);
+                    // Kiểm tra kết quả đăng nhập
+                    if (login != null) {
+                        // Gửi phản hồi thành công cùng với thông tin tài khoản người dùng
+                        ar.sendAckData(true, login);
+                    } else {
+                        // Gửi phản hồi thất bại
+                        ar.sendAckData(false);
+                    }
+                } catch (SQLException ex) {
+                    System.err.println(ex);
+                }
+            }
+        });
+
         server.start();
         textArea.append("Server has Start on port : " + PORT_NUMBER + "\n");
     }

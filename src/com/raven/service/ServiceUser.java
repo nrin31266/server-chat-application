@@ -93,17 +93,21 @@ public class ServiceUser {
         p.setString(1, login.getUserName());
         p.setString(2, login.getPassword());
         ResultSet r= p.executeQuery();
-        while(r.first()){
+        while(r.next()){
             int userID= r.getInt(1);
             String userName= r.getString(2);
             String gender= r.getString(3);
             String image= r.getString(4);
             data= new Model_User_Account(userID, userName, gender, image, true);
+            return data;
         }
-        return data;
+        return null;
     }
     //  SQL
-    private final String LOGIN = "select UserID, user_account.UserName, Gender, ImageString from `user` join user_account using (UserID) where `user`.UserName=BINARY(?) and `user`.`Password`=BINARY(?) and user_account.`Status`='1'";
+   private final String LOGIN = "SELECT UserID, user_account.UserName, Gender, ImageString " +
+        "FROM user JOIN user_account USING (UserID) " +
+        "WHERE user.UserName = BINARY(?) AND user.Password = BINARY(?) AND user_account.Status = '1'";
+
     private final String SELECT_USER_ACCOUNT = "select UserID, UserName, Gender, ImageString from user_account where user_account.`Status`='1' and UserID<>?";
     private final String INSERT_USER = "insert into user (UserName, `Password`) values (?,?)";
     private final String CHECK_USER = "select UserID from user where UserName =? limit 1";
