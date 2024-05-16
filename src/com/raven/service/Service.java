@@ -10,7 +10,9 @@ import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.raven.model.Model_Client;
 import com.raven.model.Model_Login;
 import com.raven.model.Model_Message;
+import com.raven.model.Model_Receive_Message;
 import com.raven.model.Model_Register;
+import com.raven.model.Model_Send_Message;
 import com.raven.model.Model_User_Account;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -107,9 +109,25 @@ public class Service {
             }
             
         });
-        
+        server.addEventListener("send_to_user", Model_Send_Message.class, new DataListener<Model_Send_Message>() {
+            @Override
+            public void onData(SocketIOClient sioc, Model_Send_Message t, AckRequest ar) throws Exception {
+                System.err.println("Nhan dc tin nhan tu client");
+                System.out.println(t.toString());
+                sendToClient(t);
+            }
+        });
         server.start();
         textArea.append("Server has Start on port : " + PORT_NUMBER + "\n");
+    }
+    
+    public void sendToClient(Model_Send_Message data){
+        for(Model_Client c:listClient){
+            if(c.getUser().getUserID()==data.getToUserID()){
+                c.getClient().sendEvent("receive_ms", new Model_Receive_Message(data.getFromUserID(), data.getText()));
+                break;
+            }
+        }
     }
     private void userConnent(int userID){
         server.getBroadcastOperations().sendEvent("user_status", userID, true);
