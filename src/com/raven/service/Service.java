@@ -6,11 +6,14 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
+import com.corundumstudio.socketio.listener.DisconnectListener;
+import com.raven.model.Model_Client;
 import com.raven.model.Model_Login;
 import com.raven.model.Model_Message;
 import com.raven.model.Model_Register;
 import com.raven.model.Model_User_Account;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,6 +21,7 @@ import javax.swing.JTextArea;
 
 public class Service {
 
+    private List<Model_Client> listClient;
     private static Service instance;
     private SocketIOServer server;
     private JTextArea textArea;
@@ -34,6 +38,7 @@ public class Service {
     private Service(JTextArea textArea) {
         this.textArea = textArea;
         serviceUser = new ServiceUser();
+        listClient= new ArrayList<>();
     }
 
     public void startServer() {
@@ -54,6 +59,7 @@ public class Service {
                 if (message.isAction()) {
                     textArea.append("User has Register :" + t.getUserName() + " Pass :" + t.getPassword() + "\n");
                     server.getBroadcastOperations().sendEvent("list_user", (Model_User_Account) message.getData());
+                    addClient(sioc,(Model_User_Account) message.getData());
                 }
             }
         });
@@ -78,17 +84,54 @@ public class Service {
                     if (login != null) {
                         // Gửi phản hồi thành công cùng với thông tin tài khoản người dùng
                         ar.sendAckData(true, login);
+                        addClient(sioc, login);
+                        userConnent(login.getUserID());
                     } else {
                         // Gửi phản hồi thất bại
                         ar.sendAckData(false);
+                        
                     }
                 } catch (SQLException ex) {
                     System.err.println(ex);
                 }
             }
         });
-
+        server.addDisconnectListener(new DisconnectListener(){
+            @Override
+            public void onDisconnect(SocketIOClient sioc) {
+                int userID= removeClient(sioc);
+                if(userID!=0){
+                    //Da xoa
+                    userDisConnect(userID);
+                }
+            }
+            
+        });
+        
         server.start();
         textArea.append("Server has Start on port : " + PORT_NUMBER + "\n");
     }
+    private void userConnent(int userID){
+        server.getBroadcastOperations().sendEvent("user_status", userID, true);
+    }
+    private void userDisConnect(int userID){
+        server.getBroadcastOperations().sendEvent("user_status", userID, false);
+    }
+    private void addClient(SocketIOClient client, Model_User_Account user){
+        listClient.add(new Model_Client(client, user));
+    }
+    private int removeClient(SocketIOClient client){
+        for (Model_Client d: listClient){
+            if(d.getClient()==client){
+                listClient.remove(d);
+                return d.getUser().getUserID();
+            }
+        }
+        return 0;
+    }
+    
+    public List<Model_Client> getListClient() {
+        return listClient;
+    }
+    
 }

@@ -1,6 +1,7 @@
 package com.raven.service;
 
 import com.raven.connection.DatabaseConnection;
+import com.raven.model.Model_Client;
 import com.raven.model.Model_Login;
 import com.raven.model.Model_Message;
 import com.raven.model.Model_Register;
@@ -41,11 +42,11 @@ public class ServiceUser {
                 p.setString(1, data.getUserName());
                 p.setString(2, data.getPassword());
                 p.execute();
-                r= p.getGeneratedKeys();
+                r = p.getGeneratedKeys();
                 r.first();
-                int UserID=r.getInt(1);
+                int UserID = r.getInt(1);
                 r.close();
-                p.close();      
+                p.close();
                 //Create user account
                 p = con.prepareStatement(INSERT_USER_ACCOUNT);
                 p.setInt(1, UserID);
@@ -54,64 +55,76 @@ public class ServiceUser {
                 con.commit();
                 con.setAutoCommit(true);
                 p.close();
-                
+
                 message.setAction(true);
                 message.setMessage("Ok");
-                message.setData(new Model_User_Account(UserID, data.getUserName(),"", "", true));
+                message.setData(new Model_User_Account(UserID, data.getUserName(), "", "", true));
             }
         } catch (SQLException e) {
             message.setAction(false);
             message.setMessage("Server Error");
             try {
-                if(con.getAutoCommit()==false){
+                if (con.getAutoCommit() == false) {
                     con.rollback();
                     con.setAutoCommit(true);
                 }
             } catch (Exception e1) {
-                
+
             }
         }
         return message;
     }
-    public List<Model_User_Account> getUser(int exitUser) throws SQLException{
+
+    public List<Model_User_Account> getUser(int exitUser) throws SQLException {
         List<Model_User_Account> list = new ArrayList<>();
-        PreparedStatement p=con.prepareStatement(SELECT_USER_ACCOUNT);
+        PreparedStatement p = con.prepareStatement(SELECT_USER_ACCOUNT);
         p.setInt(1, exitUser);
-        ResultSet r=p.executeQuery();
-        while(r.next()){
-            int userID= r.getInt(1);
-            String userName= r.getString(2);
-            String gender= r.getString(3);
-            String image= r.getString(4);
-            list.add(new Model_User_Account(userID, userName, gender, image, true));
+        ResultSet r = p.executeQuery();
+        while (r.next()) {
+            int userID = r.getInt(1);
+            String userName = r.getString(2);
+            String gender = r.getString(3);
+            String image = r.getString(4);
+            list.add(new Model_User_Account(userID, userName, gender, image, checkUserStatus(userID)));
         }
         return list;
     }
-    public Model_User_Account login(Model_Login login) throws SQLException{
-        Model_User_Account data= null;
-        PreparedStatement p= con.prepareStatement(LOGIN);
+
+    public Model_User_Account login(Model_Login login) throws SQLException {
+        Model_User_Account data = null;
+        PreparedStatement p = con.prepareStatement(LOGIN);
         p.setString(1, login.getUserName());
         p.setString(2, login.getPassword());
-        ResultSet r= p.executeQuery();
-        while(r.next()){
-            int userID= r.getInt(1);
-            String userName= r.getString(2);
-            String gender= r.getString(3);
-            String image= r.getString(4);
-            data= new Model_User_Account(userID, userName, gender, image, true);
+        ResultSet r = p.executeQuery();
+        while (r.next()) {
+            int userID = r.getInt(1);
+            String userName = r.getString(2);
+            String gender = r.getString(3);
+            String image = r.getString(4);
+            data = new Model_User_Account(userID, userName, gender, image, true);
             return data;
         }
         return null;
     }
+    private boolean checkUserStatus(int userID){
+        List<Model_Client> clients= Service.getInstance(null).getListClient();
+        for(Model_Client c: clients){
+            if(c.getUser().getUserID()==userID){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     //  SQL
-   private final String LOGIN = "SELECT UserID, user_account.UserName, Gender, ImageString " +
-        "FROM user JOIN user_account USING (UserID) " +
-        "WHERE user.UserName = BINARY(?) AND user.Password = BINARY(?) AND user_account.Status = '1'";
+    private final String LOGIN = "SELECT UserID, user_account.UserName, Gender, ImageString "
+            + "FROM user JOIN user_account USING (UserID) "
+            + "WHERE user.UserName = BINARY(?) AND user.Password = BINARY(?) AND user_account.Status = '1'";
 
     private final String SELECT_USER_ACCOUNT = "select UserID, UserName, Gender, ImageString from user_account where user_account.`Status`='1' and UserID<>?";
     private final String INSERT_USER = "insert into user (UserName, `Password`) values (?,?)";
     private final String CHECK_USER = "select UserID from user where UserName =? limit 1";
-    private final String INSERT_USER_ACCOUNT="insert into user_account (UserID, UserName) value (?, ?)";
+    private final String INSERT_USER_ACCOUNT = "insert into user_account (UserID, UserName) value (?, ?)";
     //  Instance
     private final Connection con;
 }
