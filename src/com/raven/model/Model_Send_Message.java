@@ -3,15 +3,18 @@ package com.raven.model;
 
 
 public class Model_Send_Message {
+    
+    private int messageType;
     int fromUserID;
     int toUserID;
     String text;
-    public Model_Send_Message(int fromUserID, int toUserID, String text) {
-        this.fromUserID = fromUserID;
-        this.toUserID = toUserID;
-        this.text = text;
+
+    public int getMessageType() {
+        return messageType;
     }
-    public Model_Send_Message() {
+
+    public void setMessageType(int messageType) {
+        this.messageType = messageType;
     }
 
     public int getFromUserID() {
@@ -38,10 +41,20 @@ public class Model_Send_Message {
         this.text = text;
     }
 
-    @Override
-    public String toString() {
-        return "Model_Send_Message{" + "fromUserID=" + fromUserID + ", toUserID=" + toUserID + ", text=" + text + '}';
+    public Model_Send_Message() {
     }
 
+    public Model_Send_Message(int messageType, int fromUserID, int toUserID, String text) {
+        this.messageType = messageType;
+        this.fromUserID = fromUserID;
+        this.toUserID = toUserID;
+        this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return "Model_Send_Message{" + "messageType=" + messageType + ", fromUserID=" + fromUserID + ", toUserID=" + toUserID + ", text=" + text + '}';
+    }
+    
     
 }
