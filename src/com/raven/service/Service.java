@@ -16,6 +16,7 @@ import com.raven.model.Model_Package_Sender;
 import com.raven.model.Model_Receive_Image;
 import com.raven.model.Model_Receive_Message;
 import com.raven.model.Model_Register;
+import com.raven.model.Model_Reques_File;
 import com.raven.model.Model_Send_Message;
 import com.raven.model.Model_User_Account;
 import java.io.IOException;
@@ -129,6 +130,25 @@ public class Service {
                 if (userID != 0) {
                     //  removed
                     userDisconnect(userID);
+                }
+            }
+        });
+        server.addEventListener("get_file", Integer.class, new DataListener<Integer>() {
+            @Override
+            public void onData(SocketIOClient sioc, Integer t, AckRequest ar) throws Exception {
+                Model_File file= serviceFile.initFile(t);
+                long fileSize=serviceFile.getFileSize(t);
+                ar.sendAckData(file.getFileExtension(), fileSize);
+            }
+        });
+        server.addEventListener("reques_file", Model_Reques_File.class, new DataListener<Model_Reques_File>() {
+            @Override
+            public void onData(SocketIOClient sioc, Model_Reques_File t, AckRequest ar) throws Exception {
+                byte[] data= serviceFile.getFileData(t.getCurrentLength(), t.getFileID());
+                if(data!=null){
+                    ar.sendAckData(data);
+                }else {
+                    ar.sendAckData();
                 }
             }
         });
