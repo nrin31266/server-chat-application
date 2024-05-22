@@ -1,9 +1,6 @@
-
 package com.raven.model;
 
 public class Model_Login {
-    private String userName;
-    private String password;
 
     public String getUserName() {
         return userName;
@@ -21,18 +18,14 @@ public class Model_Login {
         this.password = password;
     }
 
-    public Model_Login() {
-    }
-
     public Model_Login(String userName, String password) {
         this.userName = userName;
         this.password = password;
     }
 
-    @Override
-    public String toString() {
-        return "Model_Login{" + "userName=" + userName + ", password=" + password + '}';
+    public Model_Login() {
     }
-    
-    
+
+    private String userName;
+    private String password;
 }

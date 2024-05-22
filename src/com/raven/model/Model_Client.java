@@ -1,11 +1,8 @@
-
 package com.raven.model;
 
 import com.corundumstudio.socketio.SocketIOClient;
 
 public class Model_Client {
-    SocketIOClient client;
-    Model_User_Account user;
 
     public SocketIOClient getClient() {
         return client;
@@ -23,13 +20,14 @@ public class Model_Client {
         this.user = user;
     }
 
-    public Model_Client() {
-    }
-
     public Model_Client(SocketIOClient client, Model_User_Account user) {
         this.client = client;
         this.user = user;
     }
-    
-    
+
+    public Model_Client() {
+    }
+
+    private SocketIOClient client;
+    private Model_User_Account user;
 }

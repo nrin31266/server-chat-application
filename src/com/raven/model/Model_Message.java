@@ -2,13 +2,6 @@ package com.raven.model;
 
 public class Model_Message {
 
-    public Model_Message() {
-    }
-
-    private boolean action;
-    private String message;
-    private Object data;
-
     public boolean isAction() {
         return action;
     }
@@ -39,4 +32,10 @@ public class Model_Message {
         this.data = data;
     }
 
+    public Model_Message() {
+    }
+
+    private boolean action;
+    private String message;
+    private Object data;
 }

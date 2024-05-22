@@ -1,23 +1,6 @@
-
 package com.raven.model;
 
 public class Model_User_Account {
-    private int userID;
-    private String userName;
-    private String gender;
-    private String image;
-    private boolean status;
-
-    public Model_User_Account() {
-    }
-
-    public Model_User_Account(int userID, String userName, String gender, String image, boolean status) {
-        this.userID = userID;
-        this.userName = userName;
-        this.gender = gender;
-        this.image = image;
-        this.status = status;
-    }
 
     public int getUserID() {
         return userID;
@@ -59,11 +42,20 @@ public class Model_User_Account {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "Model_User_Account{" + "userID=" + userID + ", userName=" + userName + ", gender=" + gender + ", image=" + image + ", status=" + status + '}';
+    public Model_User_Account(int userID, String userName, String gender, String image, boolean status) {
+        this.userID = userID;
+        this.userName = userName;
+        this.gender = gender;
+        this.image = image;
+        this.status = status;
     }
-    
-    
-    
+
+    public Model_User_Account() {
+    }
+
+    private int userID;
+    private String userName;
+    private String gender;
+    private String image;
+    private boolean status;
 }
