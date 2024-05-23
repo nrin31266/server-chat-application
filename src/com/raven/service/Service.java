@@ -169,15 +169,23 @@ public class Service {
     }
 
     private void sendToClient(Model_Send_Message data, AckRequest ar) {
-        if (data.getMessageType() == MessageType.IMAGE.getValue() || data.getMessageType() == MessageType.FILE.getValue()) {
+        if (data.getMessageType() == MessageType.IMAGE.getValue() ) {
             try {
                 Model_File file = serviceFile.addFileReceiver(data.getText());
                 serviceFile.initFile(file, data);
-                ar.sendAckData(file.getFileID());
+                ar.sendAckData(file.getFileID(), 4);
             } catch (IOException | SQLException e) {
                 e.printStackTrace();
             }
-        } else {
+        }else if(data.getMessageType() == MessageType.FILE.getValue()){
+            try {
+                Model_File file = serviceFile.addFileReceiver(data.getText());
+                serviceFile.initFile(file, data);
+                ar.sendAckData(file.getFileID(),3);
+            } catch (IOException | SQLException e) {
+                e.printStackTrace();
+            }
+        }else {
             for (Model_Client c : listClient) {
                 if (c.getUser().getUserID() == data.getToUserID()) {
                     c.getClient().sendEvent("receive_ms", new Model_Receive_Message(data.getMessageType(), data.getFromUserID(), data.getText(), null));

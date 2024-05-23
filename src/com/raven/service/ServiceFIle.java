@@ -20,6 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 public class ServiceFIle {
@@ -52,11 +54,25 @@ public class ServiceFIle {
         p.close();
     }
 
-    public void updateDone(int fileID) throws SQLException {
-        PreparedStatement p = con.prepareStatement(UPDATE_DONE);
-        p.setInt(1, fileID);
-        p.execute();
-        p.close();
+    public void updateDone(int fileID)  {
+        try {
+            PreparedStatement p = con.prepareStatement(UPDATE_DONE);
+            p.setInt(1, fileID);
+            p.execute();
+            p.close();
+        } catch (SQLException ex) {
+            System.err.println(ex);
+        }
+    }
+    public void updateDoneTBAll(int fileID)  {
+        try {
+            PreparedStatement p = con.prepareStatement(UPDATE_DONE_TBALL);
+            p.setInt(1, fileID);
+            p.execute();
+            p.close();
+        } catch (SQLException ex) {
+            System.err.println(ex);
+        }
     }
 
     public void initFile(Model_File file, Model_Send_Message message) throws IOException {
@@ -111,8 +127,11 @@ public class ServiceFIle {
             file.getMessage().setText("");
             String blurhash = convertFileToBlurHash(file.getFile(), dataImage);
             updateBlurHashDone(dataImage.getFileID(), blurhash);
+            updateDoneTBAll(dataImage.getFileID());
+            
         } else {
             updateDone(dataImage.getFileID());
+            updateDoneTBAll(dataImage.getFileID());
         }
         fileReceivers.remove(dataImage.getFileID());
         //  Get message to send to target client when file receive finish
@@ -152,9 +171,10 @@ public class ServiceFIle {
 
     //  SQL
     private final String PATH_FILE = "server_data/";
-    private final String INSERT = "insert into files (FileExtension) values (?)";
+    private final String INSERT = "insert into files_all (FileExtension) values (?)";
     private final String UPDATE_BLUR_HASH_DONE = "update files set BlurHash=?, `Status`='1' where FileID=? limit 1";
     private final String UPDATE_DONE = "update files set `Status`='1' where FileID=? limit 1";
+    private final String UPDATE_DONE_TBALL = "update files_all set `Status`='1' where FileID=? limit 1";
     private final String GET_FILE_EXTENSION="select FileExtension from files where FileID=? limit 1";
     //  Instance
     private final Connection con;
