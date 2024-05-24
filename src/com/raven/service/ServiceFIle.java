@@ -6,6 +6,7 @@ import com.raven.model.Model_File;
 import com.raven.model.Model_File_Receiver;
 import com.raven.model.Model_File_Sender;
 import com.raven.model.Model_Package_Sender;
+import com.raven.model.Model_Receive_File;
 import com.raven.model.Model_Receive_Image;
 import com.raven.model.Model_Send_Message;
 import com.raven.swing.blurHash.BlurHash;
@@ -64,10 +65,11 @@ public class ServiceFIle {
             System.err.println(ex);
         }
     }
-    public void updateDoneTBAll(int fileID)  {
+    public void updateDoneTBAll(String fileName , int fileID)  {
         try {
             PreparedStatement p = con.prepareStatement(UPDATE_DONE_TBALL);
-            p.setInt(1, fileID);
+            p.setString(1, fileName);
+            p.setInt(2, fileID);
             p.execute();
             p.close();
         } catch (SQLException ex) {
@@ -127,13 +129,29 @@ public class ServiceFIle {
             file.getMessage().setText("");
             String blurhash = convertFileToBlurHash(file.getFile(), dataImage);
             updateBlurHashDone(dataImage.getFileID(), blurhash);
-            updateDoneTBAll(dataImage.getFileID());
+            updateDoneTBAll("image",dataImage.getFileID());
             
         } else {
             updateDone(dataImage.getFileID());
-            updateDoneTBAll(dataImage.getFileID());
+            updateDoneTBAll("image",dataImage.getFileID());
         }
         fileReceivers.remove(dataImage.getFileID());
+        //  Get message to send to target client when file receive finish
+        return file.getMessage();
+    }
+    public Model_Send_Message closeFile(Model_Receive_File dataFile) throws IOException, SQLException {
+        Model_File_Receiver file = fileReceivers.get(dataFile.getFileID());
+        if (file.getMessage().getMessageType() == MessageType.FILE.getValue()) {
+            //  Image file
+            //  So create blurhash image string
+            file.getMessage().setText("");
+            updateDoneTBAll(dataFile.getFileName(),dataFile.getFileID());
+            
+        } else {
+            updateDone(dataFile.getFileID());
+            updateDoneTBAll(dataFile.getFileName(),dataFile.getFileID());
+        }
+        fileReceivers.remove(dataFile.getFileID());
         //  Get message to send to target client when file receive finish
         return file.getMessage();
     }
@@ -174,7 +192,7 @@ public class ServiceFIle {
     private final String INSERT = "insert into files_all (FileExtension) values (?)";
     private final String UPDATE_BLUR_HASH_DONE = "update files set BlurHash=?, `Status`='1' where FileID=? limit 1";
     private final String UPDATE_DONE = "update files set `Status`='1' where FileID=? limit 1";
-    private final String UPDATE_DONE_TBALL = "update files_all set `Status`='1' where FileID=? limit 1";
+    private final String UPDATE_DONE_TBALL = "update files_all set FileName=?,`Status`='1' where FileID=? limit 1";
     private final String GET_FILE_EXTENSION="select FileExtension from files where FileID=? limit 1";
     //  Instance
     private final Connection con;
