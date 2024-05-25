@@ -167,6 +167,8 @@ public class ServiceFIle {
         dataImage.setWidth(size.width);
         dataImage.setHeight(size.height);
         dataImage.setImage(blurhash);
+        dataImage.setFileExtension(getExtensions(file.getName()));
+        dataImage.setFileName(file.getName());
         return blurhash;
     }
 
@@ -181,6 +183,9 @@ public class ServiceFIle {
         int width = (int) (scale * iw);
         int height = (int) (scale * ih);
         return new Dimension(width, height);
+    }
+    private String getExtensions(String fileName) { //Trích xuất phần mở rộng của tên tệp.
+        return fileName.substring(fileName.lastIndexOf("."), fileName.length());
     }
 
     private File toFileObject(Model_File file) {
