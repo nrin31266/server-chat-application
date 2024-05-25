@@ -10,6 +10,7 @@ import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.raven.app.MessageType;
 import com.raven.model.Model_Client;
 import com.raven.model.Model_File;
+import com.raven.model.Model_HistoryChat;
 import com.raven.model.Model_Login;
 import com.raven.model.Model_Message;
 import com.raven.model.Model_Package_Sender;
@@ -35,6 +36,7 @@ public class Service {
     private List<Model_Client> listClient;
     private JTextArea textArea;
     private final int PORT_NUMBER = 9999;
+    private Service_HistoryChat serviceHistoryChat;
 
     public static Service getInstance(JTextArea textArea) {
         if (instance == null) {
@@ -48,6 +50,7 @@ public class Service {
         serviceUser = new ServiceUser();
         serviceFile = new ServiceFIle();
         listClient = new ArrayList<>();
+        serviceHistoryChat= new Service_HistoryChat();
     }
 
     public void startServer() {
@@ -58,6 +61,14 @@ public class Service {
             @Override
             public void onConnect(SocketIOClient sioc) {
                 textArea.append("One client connected\n");
+            }
+        });
+        server.addEventListener("history", Model_HistoryChat.class, new DataListener<Model_HistoryChat>() {
+            @Override
+            public void onData(SocketIOClient sioc, Model_HistoryChat t, AckRequest ar) throws Exception{
+                
+                
+                serviceHistoryChat.addHistoryChat(t);
             }
         });
         server.addEventListener("register", Model_Register.class, new DataListener<Model_Register>() {
@@ -181,6 +192,7 @@ public class Service {
                 }
             }
         });
+        
         server.start();
         textArea.append("Server has Start on port : " + PORT_NUMBER + "\n");
     }
