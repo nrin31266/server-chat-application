@@ -14,6 +14,7 @@ import com.raven.model.Model_HistoryChat;
 import com.raven.model.Model_Login;
 import com.raven.model.Model_Message;
 import com.raven.model.Model_Package_Sender;
+import com.raven.model.Model_Profile;
 import com.raven.model.Model_Receive_File;
 import com.raven.model.Model_Receive_Image;
 import com.raven.model.Model_Receive_Message;
@@ -37,6 +38,7 @@ public class Service {
     private JTextArea textArea;
     private final int PORT_NUMBER = 9999;
     private Service_HistoryChat serviceHistoryChat;
+    private ServiceProfile serviceProfile;
 
     public static Service getInstance(JTextArea textArea) {
         if (instance == null) {
@@ -51,6 +53,7 @@ public class Service {
         serviceFile = new ServiceFIle();
         listClient = new ArrayList<>();
         serviceHistoryChat= new Service_HistoryChat();
+        serviceProfile= new ServiceProfile();
     }
 
     public void startServer() {
@@ -61,6 +64,17 @@ public class Service {
             @Override
             public void onConnect(SocketIOClient sioc) {
                 textArea.append("One client connected\n");
+            }
+        });
+        server.addEventListener("get_info", Model_User_Account.class, new DataListener<Model_User_Account>(){
+            @Override
+            public void onData(SocketIOClient sioc, Model_User_Account t, AckRequest ar) throws Exception {
+                System.out.println("Nhan dc su kien");
+                
+                Model_Profile data= serviceProfile.getInfo(t);
+                if(data!=null){System.err.println("Co du lieu tu server");}
+                System.err.println(data.toString());
+                ar.sendAckData(data);
             }
         });
         server.addEventListener("history", Model_HistoryChat.class, new DataListener<Model_HistoryChat>() {
