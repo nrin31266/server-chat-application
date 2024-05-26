@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class ServiceUser {
@@ -82,11 +83,18 @@ public class ServiceUser {
             int userID = r.getInt(1);
             String userName = r.getString(2);
             String gender = r.getString(3);
-            String image = r.getString(4);
-            data = new Model_User_Account(userID, userName, gender, image, true);
+            byte[] imageBytes = r.getBytes(4);
+            String imageBase64=null;
+            if (imageBytes != null) {
+                imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+            }else{
+                imageBase64="";
+            }
+            data = new Model_User_Account(userID, userName, gender, imageBase64, true);
         }
         r.close();
         p.close();
+        System.out.println(data.toString());
         return data;
     }
 
@@ -99,8 +107,15 @@ public class ServiceUser {
             int userID = r.getInt(1);
             String userName = r.getString(2);
             String gender = r.getString(3);
-            String image = r.getString(4);
-            list.add(new Model_User_Account(userID, userName, gender, image, checkUserStatus(userID)));
+            byte[] imageBytes = r.getBytes(4);
+            String imageBase64=null;
+            if (imageBytes != null) {
+                imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+                System.out.println("Nhan anh");
+            }else{
+                imageBase64="";
+            }
+            list.add(new Model_User_Account(userID, userName, gender, imageBase64, checkUserStatus(userID)));
         }
         r.close();
         p.close();
@@ -118,8 +133,8 @@ public class ServiceUser {
     }
 
     //  SQL
-    private final String LOGIN = "select UserID, user_account.UserName, Gender, ImageString from `user` join user_account using (UserID) where `user`.UserName=BINARY(?) and `user`.`Password`=BINARY(?) and user_account.`Status`='1'";
-    private final String SELECT_USER_ACCOUNT = "select UserID, UserName, Gender, ImageString from user_account where user_account.`Status`='1' and UserID<>?";
+    private final String LOGIN = "select UserID, user_account.UserName, Gender, Image from `user` join user_account using (UserID) where `user`.UserName=BINARY(?) and `user`.`Password`=BINARY(?) and user_account.`Status`='1'";
+    private final String SELECT_USER_ACCOUNT = "select UserID, UserName, Gender, Image from user_account where user_account.`Status`='1' and UserID<>?";
     private final String INSERT_USER = "insert into user (UserName, `Password`) values (?,?)";
     private final String INSERT_USER_ACCOUNT = "insert into user_account (UserID, UserName) values (?,?)";
     private final String CHECK_USER = "select UserID from user where UserName =? limit 1";
