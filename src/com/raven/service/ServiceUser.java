@@ -94,7 +94,6 @@ public class ServiceUser {
         }
         r.close();
         p.close();
-        System.out.println(data.toString());
         return data;
     }
 
@@ -111,7 +110,6 @@ public class ServiceUser {
             String imageBase64=null;
             if (imageBytes != null) {
                 imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-                System.out.println("Nhan anh");
             }else{
                 imageBase64="";
             }
