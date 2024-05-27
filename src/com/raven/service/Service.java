@@ -11,10 +11,13 @@ import com.raven.app.MessageType;
 import com.raven.model.Model_Client;
 import com.raven.model.Model_File;
 import com.raven.model.Model_HistoryChat;
+import com.raven.model.Model_Image_Update;
 import com.raven.model.Model_Login;
 import com.raven.model.Model_Message;
+import com.raven.model.Model_Name_Update;
 import com.raven.model.Model_Package_Sender;
 import com.raven.model.Model_Profile;
+import com.raven.model.Model_Profile_Update;
 import com.raven.model.Model_Receive_File;
 import com.raven.model.Model_Receive_Image;
 import com.raven.model.Model_Receive_Message;
@@ -66,6 +69,56 @@ public class Service {
                 textArea.append("One client connected\n");
             }
         });
+        server.addEventListener("update_name_profile", Model_Name_Update.class, new DataListener<Model_Name_Update>(){
+            @Override
+            public void onData(SocketIOClient sioc, Model_Name_Update t, AckRequest ar) throws Exception {
+                boolean b=serviceProfile.updateName(t);
+                if(b){
+                    ar.sendAckData(true);
+                }else{
+                    ar.sendAckData(false);
+                }
+            }
+            
+        });
+        server.addEventListener("update_avatar_profile", Model_Image_Update.class, new DataListener<Model_Image_Update>(){
+            @Override
+            public void onData(SocketIOClient sioc, Model_Image_Update t, AckRequest ar) throws Exception {
+                boolean b=serviceProfile.updateAvatar(t);
+                if(b){
+                    ar.sendAckData(true);
+                }else{
+                    ar.sendAckData(false);
+                }
+            }
+            
+        });
+        server.addEventListener("update_coverart_profile", Model_Image_Update.class, new DataListener<Model_Image_Update>(){
+            @Override
+            public void onData(SocketIOClient sioc, Model_Image_Update t, AckRequest ar) throws Exception {
+                boolean b=serviceProfile.updateCoverArt(t);
+                if(b){
+                    ar.sendAckData(true);
+                }else{
+                    ar.sendAckData(false);
+                }
+            }
+            
+        });
+        server.addEventListener("update_profile_profile", Model_Profile_Update.class, new DataListener<Model_Profile_Update>(){
+            @Override
+            public void onData(SocketIOClient sioc, Model_Profile_Update t, AckRequest ar) throws Exception {
+                System.out.println(t.toString());
+                boolean b=serviceProfile.updateProfile(t);
+                if(b){
+                    ar.sendAckData(true);
+                }else{
+                    ar.sendAckData(false);
+                }
+            }
+        });
+        
+        
         server.addEventListener("get_info", Model_User_Account.class, new DataListener<Model_User_Account>(){
             @Override
             public void onData(SocketIOClient sioc, Model_User_Account t, AckRequest ar) throws Exception {

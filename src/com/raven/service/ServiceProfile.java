@@ -1,19 +1,166 @@
 package com.raven.service;
 
 import com.raven.connection.DatabaseConnection;
+import com.raven.model.Model_Image_Update;
+import com.raven.model.Model_Name_Update;
 import com.raven.model.Model_Profile;
+import com.raven.model.Model_Profile_Update;
 import com.raven.model.Model_User_Account;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
 
 public class ServiceProfile {
 
     public ServiceProfile() {
         this.con = DatabaseConnection.getInstance().getConnection();
+    }
+
+    public boolean updateProfile(Model_Profile_Update data) throws ParseException{
+        if(data.getUserName()!=null&&!data.getUserName().isEmpty()){
+            try {
+                PreparedStatement p=con.prepareStatement(UPDATE_USERNAME_1);
+                p.setString(1, data.getUserName());
+                p.setInt(2, data.getUserID());
+                p.executeUpdate();
+                p.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+            try {
+                PreparedStatement p=con.prepareStatement(UPDATE_USERNAME_2);
+                p.setString(1, data.getUserName());
+                p.setInt(2, data.getUserID());
+                p.executeUpdate();
+                p.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+            
+        }
+        if(data.getGender()!=null&&!data.getGender().isEmpty()){
+            try {
+                PreparedStatement p=con.prepareStatement(UPDATE_GENDER);
+                p.setString(1, data.getGender());
+                p.setInt(2, data.getUserID());
+                p.executeUpdate();
+                p.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        if(data.getPhoneNumber()!=null&&!data.getPhoneNumber().isEmpty()){
+            try {
+                PreparedStatement p=con.prepareStatement(UPDATE_PHONE);
+                p.setString(1, data.getPhoneNumber());
+                p.setInt(2, data.getUserID());
+                p.executeUpdate();
+                p.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        if(data.getDate()!=null&&!data.getDate().isEmpty()){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date parsedDate = dateFormat.parse(data.getDate());
+            java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
+            //
+            try {
+                PreparedStatement p=con.prepareStatement(UPDATE_DATE);
+                p.setDate(1, sqlDate);
+                p.setInt(2, data.getUserID());
+                p.executeUpdate();
+                p.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        if(data.getEmail()!=null&&!data.getEmail().isEmpty()){
+            
+            try {
+                PreparedStatement p=con.prepareStatement(UPDATE_EMAIL);
+                p.setString(1, data.getEmail());
+                p.setInt(2, data.getUserID());
+                p.executeUpdate();
+                p.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        if(data.getAddress()!=null&&!data.getAddress().isEmpty()){
+            try {
+                PreparedStatement p=con.prepareStatement(UPDATE_ADDRESS);
+                p.setString(1, data.getAddress());
+                p.setInt(2, data.getUserID());
+                p.executeUpdate();
+                p.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean updateCoverArt(Model_Image_Update data) {
+        try {
+            PreparedStatement p = con.prepareStatement(UPDATE_COVERART);
+            byte[] imageBytes = Base64.getDecoder().decode(data.getImageData());
+            p.setBytes(1, imageBytes);
+            p.setInt(2, data.getUserID());
+            p.executeUpdate();
+            p.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean updateName(Model_Name_Update data) {
+
+        try {
+            PreparedStatement p = con.prepareStatement(UPDATE_NAME);
+
+            p.setString(1, data.getName());
+            p.setInt(2, data.getUserID());
+            p.executeUpdate();
+            p.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean updateAvatar(Model_Image_Update data) {
+        try {
+            PreparedStatement p = con.prepareStatement(UPDATE_IMAGE);
+            byte[] imageBytes = Base64.getDecoder().decode(data.getImageData());
+            p.setBytes(1, imageBytes);
+            p.setInt(2, data.getUserID());
+
+            p.executeUpdate();
+            p.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public Model_Profile getInfo(Model_User_Account d) {
@@ -93,6 +240,26 @@ public class ServiceProfile {
 //Sql
     private final String SELECT_INFO
             = "select * from `user_account` where UserID=?";
+    private final String UPDATE_NAME
+            = "update user_account set Name=? where UserID=?";
+    private final String UPDATE_IMAGE
+            = "update user_account set Image=? where UserID=?";
+    private final String UPDATE_COVERART
+            = "update user_account set CoverArt=? where UserID=?";
+    private final String UPDATE_USERNAME_1
+            = "update user_account set UserName=? where UserID=?";
+    private final String UPDATE_USERNAME_2
+            = "update user set UserName=? where UserID=?";
+    private final String UPDATE_GENDER
+            = "update user_account set Gender=? where UserID=?";
+    private final String UPDATE_PHONE
+            = "update user_account set PhoneNumber=? where UserID=?";
+    private final String UPDATE_DATE
+            = "update user_account set Date=? where UserID=?";
+    private final String UPDATE_EMAIL
+            = "update user_account set Email=? where UserID=?";
+    private final String UPDATE_ADDRESS
+            = "update user_account set Address=? where UserID=?";
 
     private final Connection con;
 }
