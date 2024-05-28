@@ -13,7 +13,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public class ServiceProfile {
 
@@ -21,33 +23,72 @@ public class ServiceProfile {
         this.con = DatabaseConnection.getInstance().getConnection();
     }
 
-    public boolean updateProfile(Model_Profile_Update data) throws ParseException{
-        if(data.getUserName()!=null&&!data.getUserName().isEmpty()){
-            try {
-                PreparedStatement p=con.prepareStatement(UPDATE_USERNAME_1);
-                p.setString(1, data.getUserName());
-                p.setInt(2, data.getUserID());
-                p.executeUpdate();
-                p.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
+    public String getImageAvt(int id) {
+        try {
+            PreparedStatement p = con.prepareStatement(SELECT_IMAGE);
+            p.setInt(1, id);
+            ResultSet r = p.executeQuery();
+            if (r.next()) {
+                byte[] imageBytes = r.getBytes("Image");
+                if (imageBytes != null) {
+                    String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+                    return imageBase64;
+                }
             }
-            try {
-                PreparedStatement p=con.prepareStatement(UPDATE_USERNAME_2);
-                p.setString(1, data.getUserName());
-                p.setInt(2, data.getUserID());
-                p.executeUpdate();
-                p.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
-            }
-            
+            p.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        if(data.getGender()!=null&&!data.getGender().isEmpty()){
+        return "";
+    }
+
+    public String getImageCoverArt(int id) {
+        try {
+            PreparedStatement p = con.prepareStatement(SELECT_COVER_ART);
+            p.setInt(1, id);
+            ResultSet r = p.executeQuery();
+            if (r.next()) {
+                byte[] imageBytes = r.getBytes("CoverArt");
+                if (imageBytes != null) {
+                    String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+                    return imageBase64;
+                }
+            }
+            p.close();
+            p.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public boolean updateProfile(Model_Profile_Update data) throws ParseException {
+        if (data.getUserName() != null && !data.getUserName().isEmpty()) {
             try {
-                PreparedStatement p=con.prepareStatement(UPDATE_GENDER);
+                PreparedStatement p = con.prepareStatement(UPDATE_USERNAME_1);
+                p.setString(1, data.getUserName());
+                p.setInt(2, data.getUserID());
+                p.executeUpdate();
+                p.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+            try {
+                PreparedStatement p = con.prepareStatement(UPDATE_USERNAME_2);
+                p.setString(1, data.getUserName());
+                p.setInt(2, data.getUserID());
+                p.executeUpdate();
+                p.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+        }
+        if (data.getGender() != null && !data.getGender().isEmpty()) {
+            try {
+                PreparedStatement p = con.prepareStatement(UPDATE_GENDER);
                 p.setString(1, data.getGender());
                 p.setInt(2, data.getUserID());
                 p.executeUpdate();
@@ -57,9 +98,9 @@ public class ServiceProfile {
                 return false;
             }
         }
-        if(data.getPhoneNumber()!=null&&!data.getPhoneNumber().isEmpty()){
+        if (data.getPhoneNumber() != null && !data.getPhoneNumber().isEmpty()) {
             try {
-                PreparedStatement p=con.prepareStatement(UPDATE_PHONE);
+                PreparedStatement p = con.prepareStatement(UPDATE_PHONE);
                 p.setString(1, data.getPhoneNumber());
                 p.setInt(2, data.getUserID());
                 p.executeUpdate();
@@ -69,13 +110,13 @@ public class ServiceProfile {
                 return false;
             }
         }
-        if(data.getDate()!=null&&!data.getDate().isEmpty()){
+        if (data.getDate() != null && !data.getDate().isEmpty()) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             java.util.Date parsedDate = dateFormat.parse(data.getDate());
             java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
             //
             try {
-                PreparedStatement p=con.prepareStatement(UPDATE_DATE);
+                PreparedStatement p = con.prepareStatement(UPDATE_DATE);
                 p.setDate(1, sqlDate);
                 p.setInt(2, data.getUserID());
                 p.executeUpdate();
@@ -85,10 +126,10 @@ public class ServiceProfile {
                 return false;
             }
         }
-        if(data.getEmail()!=null&&!data.getEmail().isEmpty()){
-            
+        if (data.getEmail() != null && !data.getEmail().isEmpty()) {
+
             try {
-                PreparedStatement p=con.prepareStatement(UPDATE_EMAIL);
+                PreparedStatement p = con.prepareStatement(UPDATE_EMAIL);
                 p.setString(1, data.getEmail());
                 p.setInt(2, data.getUserID());
                 p.executeUpdate();
@@ -98,9 +139,9 @@ public class ServiceProfile {
                 return false;
             }
         }
-        if(data.getAddress()!=null&&!data.getAddress().isEmpty()){
+        if (data.getAddress() != null && !data.getAddress().isEmpty()) {
             try {
-                PreparedStatement p=con.prepareStatement(UPDATE_ADDRESS);
+                PreparedStatement p = con.prepareStatement(UPDATE_ADDRESS);
                 p.setString(1, data.getAddress());
                 p.setInt(2, data.getUserID());
                 p.executeUpdate();
@@ -113,12 +154,12 @@ public class ServiceProfile {
         return true;
     }
 
-    public boolean updateCoverArt(Model_Image_Update data) {
+    public boolean updateCoverArt(int userID, byte[] data) {
+        byte[] imageBytes;
         try {
             PreparedStatement p = con.prepareStatement(UPDATE_COVERART);
-            byte[] imageBytes = Base64.getDecoder().decode(data.getImageData());
-            p.setBytes(1, imageBytes);
-            p.setInt(2, data.getUserID());
+            p.setBytes(1, data);
+            p.setInt(2, userID);
             p.executeUpdate();
             p.close();
 
@@ -146,12 +187,11 @@ public class ServiceProfile {
         return true;
     }
 
-    public boolean updateAvatar(Model_Image_Update data) {
+    public boolean updateAvatar(int userID, byte[] data) {
         try {
             PreparedStatement p = con.prepareStatement(UPDATE_IMAGE);
-            byte[] imageBytes = Base64.getDecoder().decode(data.getImageData());
-            p.setBytes(1, imageBytes);
-            p.setInt(2, data.getUserID());
+            p.setBytes(1, data);
+            p.setInt(2, userID);
 
             p.executeUpdate();
             p.close();
@@ -177,25 +217,19 @@ public class ServiceProfile {
                 data = new Model_Profile();
                 data.setUserID(d.getUserID());
                 data.setUserName(r.getString("UserName"));
-
                 data.setGender(r.getString("Gender"));
-
                 // Encode image to Base64 string if not null
-                byte[] imageBytes = r.getBytes("Image");
-                if (imageBytes != null) {
-                    String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-                    data.setImage(imageBase64);
-                }
-
+//                byte[] imageBytes = r.getBytes("Image");
+//                if (imageBytes != null) {
+//                    String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+//                    data.setImage(imageBase64);
+//              }
+                data.setImage("");
                 data.setImageString("ImageString"); // Consider setting a meaningful value
-
                 // Parse and set status
                 data.setStatus(r.getString("Status").equals("1"));
-
                 data.setName(r.getString("Name"));
-
                 data.setPhoneNumber(r.getString("PhoneNumber"));
-
                 try {
                     java.sql.Date sqlDate = r.getDate("Date");
                     if (sqlDate != null) {
@@ -206,16 +240,14 @@ public class ServiceProfile {
                 } catch (Exception e) {
                     data.setDate(""); // Gán chuỗi trống nếu có ngoại lệ xảy ra
                 }
-
                 data.setEmail(r.getString("Email"));
-
                 // Encode cover art to Base64 string if not null
-                byte[] coverArtBytes = r.getBytes("CoverArt");
-                if (coverArtBytes != null) {
-                    String coverArtBase64 = Base64.getEncoder().encodeToString(coverArtBytes);
-                    data.setCoverArt(coverArtBase64);
-                }
-
+//                byte[] coverArtBytes = r.getBytes("CoverArt");
+//                if (coverArtBytes != null) {
+//                    String coverArtBase64 = Base64.getEncoder().encodeToString(coverArtBytes);
+//                    data.setCoverArt(coverArtBase64);
+//                }
+                data.setCoverArt("");
                 data.setAddress(r.getString("Address"));
             }
         } catch (SQLException e) {
@@ -235,6 +267,18 @@ public class ServiceProfile {
         }
 
         return data;
+    }
+
+    public List<Model_Image_Update> createChunks(int userID, String imageData) {
+        int chunkSize = 30000; // Kích thước mỗi chunk
+        List<Model_Image_Update> chunks = new ArrayList<>();
+//        chunks.add(new Model_Image_Update(userID, "", false));
+        for (int i = 0; i < imageData.length(); i += chunkSize) {
+            String chunk = imageData.substring(i, Math.min(imageData.length(), i + chunkSize));
+            boolean isLastChunk = (i + chunkSize) >= imageData.length();
+            chunks.add(new Model_Image_Update(userID, chunk, isLastChunk));
+        }
+        return chunks;
     }
 
 //Sql
@@ -260,6 +304,10 @@ public class ServiceProfile {
             = "update user_account set Email=? where UserID=?";
     private final String UPDATE_ADDRESS
             = "update user_account set Address=? where UserID=?";
+    private final String SELECT_IMAGE
+            = "select (Image) from `user_account` where UserID=?";
+    private final String SELECT_COVER_ART
+            = "select (CoverArt) from `user_account` where UserID=?";
 
     private final Connection con;
 }

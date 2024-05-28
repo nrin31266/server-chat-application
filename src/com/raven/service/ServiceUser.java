@@ -83,14 +83,14 @@ public class ServiceUser {
             int userID = r.getInt(1);
             String userName = r.getString(2);
             String gender = r.getString(3);
-            byte[] imageBytes = r.getBytes(4);
-            String imageBase64=null;
-            if (imageBytes != null) {
-                imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-            }else{
-                imageBase64="";
-            }
-            data = new Model_User_Account(userID, userName, gender, imageBase64, true);
+//            byte[] imageBytes = r.getBytes(4);
+//            String imageBase64=null;
+//            if (imageBytes != null) {
+//                imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+//            }else{
+//                imageBase64="";
+//            }
+            data = new Model_User_Account(userID, userName, gender, "", true);
         }
         r.close();
         p.close();
@@ -106,14 +106,14 @@ public class ServiceUser {
             int userID = r.getInt(1);
             String userName = r.getString(2);
             String gender = r.getString(3);
-            byte[] imageBytes = r.getBytes(4);
-            String imageBase64=null;
-            if (imageBytes != null) {
-                imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-            }else{
-                imageBase64="";
-            }
-            list.add(new Model_User_Account(userID, userName, gender, imageBase64, checkUserStatus(userID)));
+//            byte[] imageBytes = r.getBytes(4);
+//            String imageBase64=null;
+//            if (imageBytes != null) {
+//                imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+//            }else{
+//                imageBase64="";
+//            }
+            list.add(new Model_User_Account(userID, userName, gender, "", checkUserStatus(userID)));
         }
         r.close();
         p.close();
