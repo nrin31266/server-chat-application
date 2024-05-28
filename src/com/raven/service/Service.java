@@ -225,9 +225,7 @@ public class Service {
                 }
             }
         });
-        server.addEventListener(
-                "login", Model_Login.class,
-                new DataListener<Model_Login>() {
+        server.addEventListener("login", Model_Login.class,new DataListener<Model_Login>() {
             @Override
             public void onData(SocketIOClient sioc, Model_Login t,
                     AckRequest ar) throws Exception {
@@ -256,9 +254,7 @@ public class Service {
             }
         });
 
-        server.addEventListener(
-                "list_user", Integer.class,
-                new DataListener<Integer>() {
+        server.addEventListener("list_user", Integer.class,new DataListener<Integer>() {
             @Override
             public void onData(SocketIOClient sioc, Integer userID,
                     AckRequest ar) throws Exception {
@@ -271,9 +267,7 @@ public class Service {
             }
         }
         );
-        server.addEventListener(
-                "send_to_user", Model_Send_Message.class,
-                new DataListener<Model_Send_Message>() {
+        server.addEventListener("send_to_user", Model_Send_Message.class,new DataListener<Model_Send_Message>() {
             @Override
             public void onData(SocketIOClient sioc, Model_Send_Message t,
                     AckRequest ar) throws Exception {
@@ -281,9 +275,7 @@ public class Service {
             }
         }
         );
-        server.addEventListener(
-                "send_file", Model_Package_Sender.class,
-                new DataListener<Model_Package_Sender>() {
+        server.addEventListener("send_file", Model_Package_Sender.class,new DataListener<Model_Package_Sender>() {
             @Override
             public void onData(SocketIOClient sioc, Model_Package_Sender t,
                     AckRequest ar) throws Exception {
@@ -345,9 +337,7 @@ public class Service {
         //"get_file": Được gửi khi máy khách yêu cầu thông tin về một tệp cụ thể bằng cách truyền fileID. 
         //Khi sự kiện này được kích hoạt, máy chủ sẽ gửi lại thông tin về fileID, 
         //bao gồm phần mở rộng của tệp và kích thước của tệp.
-        server.addEventListener(
-                "get_file", Integer.class,
-                new DataListener<Integer>() {
+        server.addEventListener("get_file", Integer.class,new DataListener<Integer>() {
             @Override
             public void onData(SocketIOClient sioc, Integer t,
                     AckRequest ar) throws Exception {
@@ -375,9 +365,7 @@ public class Service {
             }
         }
         );
-
         server.start();
-
         textArea.append(
                 "Server has Start on port : " + PORT_NUMBER + "\n");
     }
