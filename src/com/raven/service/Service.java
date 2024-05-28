@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -240,6 +241,21 @@ public class Service {
                 }
             }
         });
+        server.addEventListener("user_updated_image", Model_Image_Update.class, new DataListener<Model_Image_Update>() {
+            @Override
+            public void onData(SocketIOClient sioc, Model_Image_Update t, AckRequest ar) throws Exception {
+                // Lấy danh sách tất cả các client đang kết nối
+                Collection<SocketIOClient> clients = server.getAllClients();
+
+                // Gửi sự kiện cho từng client khác client gửi yêu cầu
+                for (SocketIOClient client : clients) {
+                    if (!client.equals(sioc)) { // Loại bỏ client gửi yêu cầu
+                        client.sendEvent("user_updated_image", t);
+                    }
+                }
+            }
+        });
+
         server.addEventListener(
                 "list_user", Integer.class,
                 new DataListener<Integer>() {
