@@ -6,6 +6,10 @@ import com.raven.model.Model_Login;
 import com.raven.model.Model_Message;
 import com.raven.model.Model_Register;
 import com.raven.model.Model_User_Account;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +17,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import javax.imageio.ImageIO;
+import net.coobird.thumbnailator.Thumbnails;
 
 public class ServiceUser {
 
@@ -84,12 +90,7 @@ public class ServiceUser {
             String userName = r.getString(2);
             String gender = r.getString(3);
 //            byte[] imageBytes = r.getBytes(4);
-//            String imageBase64=null;
-//            if (imageBytes != null) {
-//                imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-//            }else{
-//                imageBase64="";
-//            }
+            
             data = new Model_User_Account(userID, userName, gender, "", true);
         }
         r.close();
@@ -97,7 +98,7 @@ public class ServiceUser {
         return data;
     }
 
-    public List<Model_User_Account> getUser(int exitUser) throws SQLException {
+    public List<Model_User_Account> getUser(int exitUser) throws SQLException, IOException {
         List<Model_User_Account> list = new ArrayList<>();
         PreparedStatement p = con.prepareStatement(SELECT_USER_ACCOUNT);
         p.setInt(1, exitUser);
@@ -106,14 +107,14 @@ public class ServiceUser {
             int userID = r.getInt(1);
             String userName = r.getString(2);
             String gender = r.getString(3);
-//            byte[] imageBytes = r.getBytes(4);
-//            String imageBase64=null;
-//            if (imageBytes != null) {
-//                imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-//            }else{
-//                imageBase64="";
-//            }
-            list.add(new Model_User_Account(userID, userName, gender, "", checkUserStatus(userID)));
+            byte[] imageBytes = r.getBytes(4);
+            
+            if(imageBytes==null){
+                list.add(new Model_User_Account(userID, userName, gender, "", checkUserStatus(userID)));
+            }else{
+                String image64=processImage(imageBytes);
+                list.add(new Model_User_Account(userID, userName, gender, image64, checkUserStatus(userID)));
+            }
         }
         r.close();
         p.close();
@@ -128,6 +129,27 @@ public class ServiceUser {
             }
         }
         return false;
+    }
+    public String processImage(byte[] imageBytes) throws IOException {
+        // Đọc ảnh từ mảng byte
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
+        BufferedImage originalImage = ImageIO.read(inputStream);
+
+        // Thay đổi kích thước và nén ảnh
+        BufferedImage resizedImage = Thumbnails.of(originalImage)
+                                               .size(80, 80)  // Thay đổi kích thước
+                                               .outputQuality(0.85)  // Chất lượng nén
+                                               .asBufferedImage();
+
+        // Ghi ảnh ra ByteArrayOutputStream
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(resizedImage, "jpg", outputStream);
+
+        // Chuyển đổi ByteArrayOutputStream thành chuỗi Base64
+        byte[] compressedImageBytes = outputStream.toByteArray();
+        String base64Image = Base64.getEncoder().encodeToString(compressedImageBytes);
+
+        return base64Image;
     }
 
     //  SQL

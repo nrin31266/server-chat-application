@@ -270,7 +270,7 @@ public class ServiceProfile {
     }
 
     public List<Model_Image_Update> createChunks(int userID, String imageData) {
-        int chunkSize = 30000; // Kích thước mỗi chunk
+        int chunkSize = 10000; // Kích thước mỗi chunk
         List<Model_Image_Update> chunks = new ArrayList<>();
 //        chunks.add(new Model_Image_Update(userID, "", false));
         for (int i = 0; i < imageData.length(); i += chunkSize) {
