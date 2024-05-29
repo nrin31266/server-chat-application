@@ -10,6 +10,7 @@ import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.raven.app.MessageType;
 import com.raven.model.Model_Client;
 import com.raven.model.Model_File;
+import com.raven.model.Model_Get_Chat_History;
 import com.raven.model.Model_HistoryChat;
 import com.raven.model.Model_Image_Update;
 import com.raven.model.Model_Login;
@@ -140,6 +141,17 @@ public class Service {
                     byte[] fullImageData = Base64.getDecoder().decode(fullImageBase64);
                     // Xử lý ảnh đầy đủ ở đây, ví dụ như lưu vào file
                     serviceProfile.updateAvatar(userID, fullImageData);
+                    //
+                    Collection<SocketIOClient> clients = server.getAllClients();
+                    String compressed=serviceProfile.processImage(fullImageData);
+                    data.setImageData(compressed);
+                    // Gửi sự kiện cho từng client khác client gửi yêu cầu
+                    for (SocketIOClient client : clients) {
+                        if (!client.equals(sioc)) { // Loại bỏ client gửi yêu cầu
+                            client.sendEvent("user_updated_image", data);
+                        }
+                    }
+                    //
                     ackRequest.sendAckData(true);
                     userImageChunks.remove(userID);
                 } else {
@@ -225,7 +237,7 @@ public class Service {
                 }
             }
         });
-        server.addEventListener("login", Model_Login.class,new DataListener<Model_Login>() {
+        server.addEventListener("login", Model_Login.class, new DataListener<Model_Login>() {
             @Override
             public void onData(SocketIOClient sioc, Model_Login t,
                     AckRequest ar) throws Exception {
@@ -239,22 +251,15 @@ public class Service {
                 }
             }
         });
-        server.addEventListener("user_updated_image", Model_Image_Update.class, new DataListener<Model_Image_Update>() {
+        server.addEventListener("get_chat_history", Model_Get_Chat_History.class, new DataListener<Model_Get_Chat_History>() {
             @Override
-            public void onData(SocketIOClient sioc, Model_Image_Update t, AckRequest ar) throws Exception {
-                // Lấy danh sách tất cả các client đang kết nối
-                Collection<SocketIOClient> clients = server.getAllClients();
-
-                // Gửi sự kiện cho từng client khác client gửi yêu cầu
-                for (SocketIOClient client : clients) {
-                    if (!client.equals(sioc)) { // Loại bỏ client gửi yêu cầu
-                        client.sendEvent("user_updated_image", t);
-                    }
-                }
+            public void onData(SocketIOClient sioc, Model_Get_Chat_History t, AckRequest ar) throws Exception {
+                System.out.println("Nhan dc su kien lay tin nhan");
+                List<Model_HistoryChat> list = serviceHistoryChat.getChatHistory(t.getSenderID(), t.getReceiverID());
+                ar.sendAckData(list.toArray());
             }
         });
-
-        server.addEventListener("list_user", Integer.class,new DataListener<Integer>() {
+        server.addEventListener("list_user", Integer.class, new DataListener<Integer>() {
             @Override
             public void onData(SocketIOClient sioc, Integer userID,
                     AckRequest ar) throws Exception {
@@ -267,7 +272,7 @@ public class Service {
             }
         }
         );
-        server.addEventListener("send_to_user", Model_Send_Message.class,new DataListener<Model_Send_Message>() {
+        server.addEventListener("send_to_user", Model_Send_Message.class, new DataListener<Model_Send_Message>() {
             @Override
             public void onData(SocketIOClient sioc, Model_Send_Message t,
                     AckRequest ar) throws Exception {
@@ -275,7 +280,7 @@ public class Service {
             }
         }
         );
-        server.addEventListener("send_file", Model_Package_Sender.class,new DataListener<Model_Package_Sender>() {
+        server.addEventListener("send_file", Model_Package_Sender.class, new DataListener<Model_Package_Sender>() {
             @Override
             public void onData(SocketIOClient sioc, Model_Package_Sender t,
                     AckRequest ar) throws Exception {
@@ -337,7 +342,7 @@ public class Service {
         //"get_file": Được gửi khi máy khách yêu cầu thông tin về một tệp cụ thể bằng cách truyền fileID. 
         //Khi sự kiện này được kích hoạt, máy chủ sẽ gửi lại thông tin về fileID, 
         //bao gồm phần mở rộng của tệp và kích thước của tệp.
-        server.addEventListener("get_file", Integer.class,new DataListener<Integer>() {
+        server.addEventListener("get_file", Integer.class, new DataListener<Integer>() {
             @Override
             public void onData(SocketIOClient sioc, Integer t,
                     AckRequest ar) throws Exception {

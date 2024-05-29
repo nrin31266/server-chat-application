@@ -10,35 +10,29 @@ public class Model_HistoryChat {
     private String txt;
     private String senderFilePath;
     private String receiverFilePath;
-    private LocalDateTime time;  // Nếu vẫn muốn giữ thời gian
-    
+    private int fileID;
+    private String fileName;
+    private String fileSize;
+    private String time;  // Nếu vẫn muốn giữ thời gian
+
     public Model_HistoryChat() {
     }
 
-    public Model_HistoryChat(int fromUser, int toUser, int type, String txt, String senderFilePath, String receiverFilePath) {
+    public Model_HistoryChat(int fromUser, int toUser, int type, String txt, String senderFilePath, String receiverFilePath, int fileID, String fileName, String fileSize) {
         this.fromUser = fromUser;
         this.toUser = toUser;
         this.type = type;
         this.txt = txt;
         this.senderFilePath = senderFilePath;
         this.receiverFilePath = receiverFilePath;
+        this.fileID = fileID;
+        this.fileName = fileName;
+        this.fileSize = fileSize;
     }
 
-    public String getSenderFilePath() {
-        return senderFilePath;
-    }
+    
 
-    public void setSenderFilePath(String senderFilePath) {
-        this.senderFilePath = senderFilePath;
-    }
-
-    public String getReceiverFilePath() {
-        return receiverFilePath;
-    }
-
-    public void setReceiverFilePath(String receiverFilePath) {
-        this.receiverFilePath = receiverFilePath;
-    }
+    
 
     
 
@@ -74,19 +68,54 @@ public class Model_HistoryChat {
         this.txt = txt;
     }
 
-    public LocalDateTime getTime() {
+    public String getSenderFilePath() {
+        return senderFilePath;
+    }
+
+    public void setSenderFilePath(String senderFilePath) {
+        this.senderFilePath = senderFilePath;
+    }
+
+    public String getReceiverFilePath() {
+        return receiverFilePath;
+    }
+
+    public void setReceiverFilePath(String receiverFilePath) {
+        this.receiverFilePath = receiverFilePath;
+    }
+
+    public String getTime() {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
+    public void setTime(String time) {
         this.time = time;
     }
 
+    public int getFileID() {
+        return fileID;
+    }
 
+    public void setFileID(int fileID) {
+        this.fileID = fileID;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(String fileSize) {
+        this.fileSize = fileSize;
+    }
     
-
-
-
-   
+    
     
 }

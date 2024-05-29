@@ -6,6 +6,10 @@ import com.raven.model.Model_Name_Update;
 import com.raven.model.Model_Profile;
 import com.raven.model.Model_Profile_Update;
 import com.raven.model.Model_User_Account;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -16,11 +20,35 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import javax.imageio.ImageIO;
+import net.coobird.thumbnailator.Thumbnails;
 
 public class ServiceProfile {
 
     public ServiceProfile() {
         this.con = DatabaseConnection.getInstance().getConnection();
+    }
+
+    public String processImage(byte[] imageBytes) throws IOException {
+        // Đọc ảnh từ mảng byte
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
+        BufferedImage originalImage = ImageIO.read(inputStream);
+
+        // Thay đổi kích thước và nén ảnh
+        BufferedImage resizedImage = Thumbnails.of(originalImage)
+                .size(70, 70) // Thay đổi kích thước
+                .outputQuality(0.7) // Chất lượng nén
+                .asBufferedImage();
+
+        // Ghi ảnh ra ByteArrayOutputStream
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(resizedImage, "jpg", outputStream);
+
+        // Chuyển đổi ByteArrayOutputStream thành chuỗi Base64
+        byte[] compressedImageBytes = outputStream.toByteArray();
+        String base64Image = Base64.getEncoder().encodeToString(compressedImageBytes);
+
+        return base64Image;
     }
 
     public String getImageAvt(int id) {
