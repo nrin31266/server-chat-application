@@ -1,4 +1,6 @@
 
+CREATE DATABASE chat_application;
+
 CREATE TABLE `files` (
   `FileID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `FileExtension` varchar(255) DEFAULT NULL,
@@ -69,3 +71,13 @@ CREATE TABLE `HistoryChat` (
   CONSTRAINT `fk_sender_user` FOREIGN KEY (`SenderID`) REFERENCES `user` (`UserID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_receiver_user` FOREIGN KEY (`ReceiverID`) REFERENCES `user` (`UserID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE
+DEFINER=`nrin31266`@`localhost`
+TRIGGER `chat_application`.`files_all_after_insert`
+AFTER INSERT ON `chat_application`.`files_all`
+FOR EACH ROW
+BEGIN 
+    INSERT INTO files (FileExtension, Status) 
+    VALUES (NEW.FileExtension, '0'); 
+END

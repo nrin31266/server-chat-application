@@ -142,8 +142,6 @@ public class ServiceFIle {
     public Model_Send_Message closeFile(Model_Receive_File dataFile) throws IOException, SQLException {
         Model_File_Receiver file = fileReceivers.get(dataFile.getFileID());
         if (file.getMessage().getMessageType() == MessageType.FILE.getValue()) {
-            //  Image file
-            //  So create blurhash image string
             file.getMessage().setText("");
             updateDoneTBAll(dataFile.getFileName(),dataFile.getFileID());
             
@@ -152,7 +150,6 @@ public class ServiceFIle {
             updateDoneTBAll(dataFile.getFileName(),dataFile.getFileID());
         }
         fileReceivers.remove(dataFile.getFileID());
-        //  Get message to send to target client when file receive finish
         return file.getMessage();
     }
 

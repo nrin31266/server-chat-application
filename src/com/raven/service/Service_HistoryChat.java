@@ -91,7 +91,7 @@ public class Service_HistoryChat {
             + "WHERE (SenderId = ? AND ReceiverID = ?)\n"
             + "   OR (SenderId = ? AND ReceiverID = ?)\n"
             + "ORDER BY Timestamp desc\n"
-            + "LIMIT 20;";
+            + "LIMIT 30;";
 
     private final Connection con;
 

@@ -355,9 +355,7 @@ public class Service {
         //"reques_file": Được gửi khi máy khách yêu cầu dữ liệu của một phần cụ thể của tệp. 
         //Khi sự kiện này được kích hoạt, máy chủ sẽ trả lại dữ liệu tương ứng với phần được yêu cầu, 
         //hoặc không có gì nếu dữ liệu không có sẵn hoặc có lỗi xảy ra.
-        server.addEventListener(
-                "reques_file", Model_Reques_File.class,
-                new DataListener<Model_Reques_File>() {
+        server.addEventListener("reques_file", Model_Reques_File.class,new DataListener<Model_Reques_File>() {
             @Override
             public void onData(SocketIOClient sioc, Model_Reques_File t,
                     AckRequest ar) throws Exception {
@@ -371,8 +369,7 @@ public class Service {
         }
         );
         server.start();
-        textArea.append(
-                "Server has Start on port : " + PORT_NUMBER + "\n");
+        textArea.append( "Server has Start on port : " + PORT_NUMBER + "\n");
     }
 
     private void userConnect(int userID) {
